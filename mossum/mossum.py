@@ -53,6 +53,8 @@ parser.add_argument('--filter', metavar='N', nargs='+', default=None,
                    help='Include only matches between these names.')
 parser.add_argument('--filteri', metavar='N', nargs='+', default=None,
                    help='Include only matches involving these names.')
+parser.add_argument('--filteriregex', metavar='N', nargs='+', default=None,
+                   help='Include only matches match the regex.')
 parser.add_argument('--filterx', metavar='N', nargs='+', default=None,
                    help='Exclude matches between these names.')
 parser.add_argument('--filterxi', metavar='N', nargs='+', default=None,
@@ -87,7 +89,7 @@ class File:
 
 class Filter:
     def __init__(self):
-        filters = ['filter', 'filteri', 'filterx', 'filterxi']
+        filters = ['filter', 'filteri', 'filterx', 'filterxi', 'filteriregex']
         for f in filters:
             setattr(self, f, None)
 
@@ -109,6 +111,10 @@ class Filter:
             return False
         if (self.filterxi is not None and (first in self.filterxi or second in
             self.filterxi)):
+            return False
+        if (self.filteriregex is not None and (not re.compile(list(self.filteriregex)[0]).match(first) 
+            and not re.compile(list(self.filteriregex)[0]).match(second))):
+            print('%s - %s not matching %s' % (first, second, self.filteriregex))
             return False
         return match.lines > args.min_lines and (match.first.percent > args.min_percent  or
                 match.second.percent > args.min_percent)
@@ -265,9 +271,16 @@ def image(results, index=None):
     print('DONE')
 
 
-def main():
+def main(filteriregex='^./project_.+_.+$', min_lines=50, min_percent=3, urls=['http://localhost:9987/report/']):
     global args
     args = parser.parse_args()
+
+    print('overwriting using 310 configs')
+    # default settings for 310
+    args.filteriregex = [filteriregex]
+    args.min_lines = min_lines
+    args.min_percent = min_percent
+    args.urls = urls
 
     urls = args.urls
     if not urls:
