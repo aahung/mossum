@@ -114,7 +114,6 @@ class Filter:
             return False
         if (self.filteriregex is not None and (not re.compile(list(self.filteriregex)[0]).match(first) 
             and not re.compile(list(self.filteriregex)[0]).match(second))):
-            print('%s - %s not matching %s' % (first, second, self.filteriregex))
             return False
         return match.lines > args.min_lines and (match.first.percent > args.min_percent  or
                 match.second.percent > args.min_percent)
