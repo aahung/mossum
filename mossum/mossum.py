@@ -270,7 +270,8 @@ def image(results, index=None):
     print('DONE')
 
 
-def main(filteriregex='^./project_.+_.+$', min_lines=50, min_percent=3, urls=['http://localhost:9987/report/']):
+def main(filteriregex='^./project_.+_.+$', min_lines=50, min_percent=3, 
+         urls=['http://localhost:9987/report/'], format='png', output='moss'):
     global args
     args = parser.parse_args()
 
@@ -280,6 +281,9 @@ def main(filteriregex='^./project_.+_.+$', min_lines=50, min_percent=3, urls=['h
     args.min_lines = min_lines
     args.min_percent = min_percent
     args.urls = urls
+    args.format = format
+    args.output = output
+    args.merge = True
 
     urls = args.urls
     if not urls:
