@@ -232,10 +232,11 @@ def get_results(moss_url):
     return Results(name, matches)
 
 
-def image(results, index=None):
+def image(results, index=None, highlightRegex='^$'):
     graph = pydot.Dot(graph_type='graph')
 
     print('Generating image for %s' % results.name)
+    all_nodes = set()
     for m in results.matches:
         ratio = m.percent / 100
         color = link_color(ratio)
@@ -252,6 +253,12 @@ def image(results, index=None):
             })
         if m.first.name != m.second.name or args.show_loops:
             graph.add_edge(pydot.Edge(m.first.name, m.second.name, **extra_opts))
+            if m.first.name not in all_nodes and re.compile(highlightRegex).match(m.first.name):
+                graph.add_node(pydot.Node(m.first.name, style="filled", fillcolor="#ff0000"))
+                all_nodes.add(m.first.name)
+            if m.second.name not in all_nodes and re.compile(highlightRegex).match(m.second.name):
+                graph.add_node(pydot.Node(m.second.name, style="filled", fillcolor="#ff0000"))
+                all_nodes.add(m.second.name)
 
     if args.output:
         name = args.output
@@ -299,12 +306,12 @@ def main(filteriregex='^./project_.+_.+$', min_lines=50, min_percent=3,
         merged = merge_results(all_res)
         if args.anonymize:
             anonymize(merged.matches)
-        image(merged)
+        image(merged, highlightRegex=filteriregex)
     else:
         for i, res in enumerate(all_res):
             if args.anonymize:
                 anonymize(res.matches)
-            image(res, i+1)
+            image(res, i+1, highlightRegex=filteriregex)
 
     if args.report:
         generate_report(all_res)
